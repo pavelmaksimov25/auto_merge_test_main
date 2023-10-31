@@ -1,0 +1,16 @@
+{
+    "name": "pavelmaksimov25/auto_merge_test_main",
+    "description": "Main project for the automerge testing",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "pavelmaksimov25/auto_merge_test_dep": "dev-main"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Pavelmaksimov25\\AutoMergeTestMain\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
