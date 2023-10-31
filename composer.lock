@@ -1,0 +1,56 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "d8e9069a6d1847f38a02041dd316daa6",
+    "packages": [
+        {
+            "name": "pavelmaksimov25/auto_merge_test_dep",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pavelmaksimov25/automerge_dep.git",
+                "reference": "94b8a9b34971bdf3541786b8f0e8cb84262be287"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pavelmaksimov25/automerge_dep/zipball/94b8a9b34971bdf3541786b8f0e8cb84262be287",
+                "reference": "94b8a9b34971bdf3541786b8f0e8cb84262be287",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Pavelmaksimov25\\AutoMergeTestDep\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Test package for auto merge",
+            "support": {
+                "issues": "https://github.com/pavelmaksimov25/automerge_dep/issues",
+                "source": "https://github.com/pavelmaksimov25/automerge_dep/tree/main"
+            },
+            "time": "2023-10-31T16:26:30+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.2"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
