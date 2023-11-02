@@ -53,3 +53,4 @@ jobs:
           MERGE_RETRIES: "3"
           MERGE_RETRY_SLEEP: "10000"
           MERGE_REQUIRED_APPROVALS: "0"
+          MERGE_LABELS: "dependencies"
