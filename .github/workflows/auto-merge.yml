@@ -3,12 +3,18 @@ name: Auto merge dependency PR
 on:
   pull_request:
     types:
-      - opened
       - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
     branches:
-      - feature/*
-      - bugfix/*
-      - hotfix/*
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
   check_suite:
     types:
       - completed
@@ -41,3 +47,9 @@ jobs:
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
           GITHUB_TOKEN: "${{ secrets.PAT }}"
+          MERGE_METHOD: "squash"
+          MERGE_COMMIT_MESSAGE: "pull-request-title"
+          MERGE_FORKS: "false"
+          MERGE_RETRIES: "3"
+          MERGE_RETRY_SLEEP: "10000"
+          MERGE_REQUIRED_APPROVALS: "0"
