@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pavelmaksimov25/automerge_dep.git",
-                "reference": "11264b049033b2a757d5fcce100bfd90e1b081c8"
+                "reference": "ce2f4e50808860a5c372026b72d65956387eca7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pavelmaksimov25/automerge_dep/zipball/11264b049033b2a757d5fcce100bfd90e1b081c8",
-                "reference": "11264b049033b2a757d5fcce100bfd90e1b081c8",
+                "url": "https://api.github.com/repos/pavelmaksimov25/automerge_dep/zipball/ce2f4e50808860a5c372026b72d65956387eca7a",
+                "reference": "ce2f4e50808860a5c372026b72d65956387eca7a",
                 "shasum": ""
             },
             "require": {
@@ -39,7 +39,7 @@
                 "issues": "https://github.com/pavelmaksimov25/automerge_dep/issues",
                 "source": "https://github.com/pavelmaksimov25/automerge_dep/tree/main"
             },
-            "time": "2023-11-02T10:30:39+00:00"
+            "time": "2023-11-02T10:38:25+00:00"
         }
     ],
     "packages-dev": [],
