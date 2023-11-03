@@ -6,49 +6,54 @@ on:
       - 'feature/**'
       - 'bugfix/**'
       - 'hotfix/**'
-  check_suite:
+  workflow_run:
+    workflows: [ Run Tests ]
     types:
       - completed
 
 jobs:
-  health-check:
+  on-success:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: test
-        run: |
-          echo "Alive"
+      - run: echo 'The triggering workflow passed'
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo 'The triggering workflow failed'
 
-  auto-merge:
-    if: ${{ github.event.label.name == 'dependencies' }}
-    runs-on: ubuntu-latest
-    steps:
-      # https://github.com/marketplace/actions/list-files-in-pull-request
-      - uses: ankitjain28may/list-files-in-pr@v1.0
-        id: can-auto-merge
-        with:
-          githubToken: ${{ secret.PAT }}
-          outputFormat: 'json'
-      - run: |
-          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
-          LEN=${#FILES[@]}
-          if [[ "$LEN" -eq 1 ]]
-          then
-              FILE=${#FILES[0]}
-              [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
-              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
-          else
-            echo "Can not auto merge, too many files" 
-          fi
-      - name: automerge
-        if: ${{ steps.can-auto-merge.outputs.can-merge == '1' }}
-        id: automerge
-        uses: "pascalgn/automerge-action@v0.15.6"
-        env:
-          GITHUB_TOKEN: "${{ secrets.PAT }}"
-          MERGE_METHOD: "squash"
-          MERGE_COMMIT_MESSAGE: "pull-request-title"
-          MERGE_FORKS: "false"
-          MERGE_RETRIES: "3"
-          MERGE_RETRY_SLEEP: "10000"
-          MERGE_REQUIRED_APPROVALS: "0"
-          MERGE_LABELS: "dependencies"
+#  auto-merge:
+#    if: ${{ github.event.label.name == 'dependencies' }}
+#    runs-on: ubuntu-latest
+#    steps:
+#      # https://github.com/marketplace/actions/list-files-in-pull-request
+#      - uses: ankitjain28may/list-files-in-pr@v1.0
+#        id: can-auto-merge
+#        with:
+#          githubToken: ${{ secret.PAT }}
+#          outputFormat: 'json'
+#      - run: |
+#          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
+#          LEN=${#FILES[@]}
+#          if [[ "$LEN" -eq 1 ]]
+#          then
+#              FILE=${#FILES[0]}
+#              [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
+#              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
+#          else
+#            echo "Can not auto merge, too many files"
+#          fi
+#      - name: automerge
+#        if: ${{ steps.can-auto-merge.outputs.can-merge == '1' }}
+#        id: automerge
+#        uses: "pascalgn/automerge-action@v0.15.6"
+#        env:
+#          GITHUB_TOKEN: "${{ secrets.PAT }}"
+#          MERGE_METHOD: "squash"
+#          MERGE_COMMIT_MESSAGE: "pull-request-title"
+#          MERGE_FORKS: "false"
+#          MERGE_RETRIES: "3"
+#          MERGE_RETRY_SLEEP: "10000"
+#          MERGE_REQUIRED_APPROVALS: "0"
+#          MERGE_LABELS: "dependencies"
