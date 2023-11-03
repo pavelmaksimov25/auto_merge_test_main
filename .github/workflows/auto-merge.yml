@@ -9,6 +9,16 @@ jobs:
   show-pr-number:
     runs-on: ubuntu-latest
     steps:
+      - name: Get the PR Number artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: ""
+          name: pr-number
+      - name: Read PR Number into GitHub environment variables
+        run: echo "PR_NUMBER=$(cat pr-number.txt)" >> $GITHUB_ENV
+      - name: Confirm the PR Number (Debugging)
+        run: echo $PR_NUMBER
       - run: |
           echo "$PULL_REQUEST_NUMBER"
           labels="$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$OWNER/$REPO_NAME/pulls/$PULL_REQUEST_NUMBER --jq '.labels.[].name')"
