@@ -4,6 +4,10 @@ on:
     types:
       - opened
       - synchronize
+    branches:
+      - master
+      - main
+      - rc
   check_suite:
     types:
       - completed
