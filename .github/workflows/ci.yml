@@ -31,17 +31,17 @@ jobs:
 
       - name: Composer install
         run: composer install
-  upload-artifacts:
-    name: "upload PR Number"
-    runs-on: ubuntu:latest
-    steps:
-      - name: "setup file"
-        run: |
-          echo "$PR_NUMBER" > prnumber.txt
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-      - name: upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: prnumber
-          path: prnumber.txt
+#  upload-artifacts:
+#    name: "upload PR Number"
+#    runs-on: ubuntu:latest
+#    steps:
+#      - name: "setup file"
+#        run: |
+#          echo "$PR_NUMBER" > prnumber.txt
+#        env:
+#          PR_NUMBER: ${{ github.event.pull_request.number }}
+#      - name: upload
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: prnumber
+#          path: prnumber.txt
