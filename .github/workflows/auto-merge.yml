@@ -19,9 +19,14 @@ jobs:
     steps:
       - run: |
           echo "Not Applicable"
+  show-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo ${{ github.event.pull_request.labels }}
 
   auto-merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.label.name == 'dependencies' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && contains(github.event.pull_request.labels.*.name, 'dependencies' }}
     runs-on: ubuntu-latest
     steps:
       # https://github.com/marketplace/actions/list-files-in-pull-request
