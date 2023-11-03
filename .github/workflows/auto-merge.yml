@@ -18,7 +18,7 @@ jobs:
     steps:
       # https://github.com/marketplace/actions/list-files-in-pull-request
       - uses: ankitjain28may/list-files-in-pr@v1.0
-        id: can-auto-merge
+        id: list-files
         with:
           githubToken: ${{ secrets.PAT }}
           outputFormat: 'space-delimited'
