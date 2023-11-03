@@ -15,7 +15,7 @@ jobs:
       - uses: ankitjain28may/list-files-in-pr@v1.0
         id: can-auto-merge
         with:
-          githubToken: ${{ secret.PAT }}
+          githubToken: ${{ secrets.PAT }}
           outputFormat: 'json'
       - run: |
           FILES=${{ steps.list-files.outputs.pullRequestFiles }}
@@ -33,7 +33,7 @@ jobs:
         id: automerge
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
-          GITHUB_TOKEN: "${{ secrets.PAT }}"
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           MERGE_METHOD: "squash"
           MERGE_COMMIT_MESSAGE: "pull-request-title"
           MERGE_FORKS: "false"
