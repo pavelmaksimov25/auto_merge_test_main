@@ -16,7 +16,21 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     steps:
+      - id: check-files
+        run: |
+          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
+          LEN=${#FILES[@]}
+          if [[ "$LEN" -eq 1 ]]
+          then
+              FILE=${#FILES[0]}
+              [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
+              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
+              echo 'found composer.lock'
+          else
+              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
+          fi
       - id: automerge
+        if: ${{ steps.check-files.outputs.can-merge == '1' }}
         name: automerge
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
