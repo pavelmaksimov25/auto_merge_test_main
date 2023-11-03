@@ -13,8 +13,8 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - id: label-the-PR
-        uses: actions/labeler@v4
+      - uses: actions/labeler@v4
+        id: label-the-PR
 
       - id: execution-gate
         if: !contains(steps.label-the-PR.outputs.all-labels, 'dependencies')
