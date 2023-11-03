@@ -21,13 +21,16 @@ jobs:
         id: can-auto-merge
         with:
           githubToken: ${{ secrets.PAT }}
-          outputFormat: 'json'
-
+          outputFormat: 'space-delimited'
+      - run: |
+          for file in ${{ steps.list-files.outputs.pullRequestFiles }}; do
+            echo "Changed Files - ${file}."
+          done
       - id: check-files
         run: |
           CAN_MERGE=0
           FILES=${{ steps.list-files.outputs.pullRequestFiles }}
-          if [[ "$FILES" != '' ]]
+          if [[ "$FILES" == '' ]]
           then
             echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
             echo "No files. Res: can-merge=$CAN_MERGE"
