@@ -4,13 +4,13 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches-ignore: [main, master, rc]
+#    branches-ignore: [main, master, rc]
 
 jobs:
   show-pr-number:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "$GITHUB_REF"
+      - run: echo ${{ github.event.pull_request.number }}
 #      - uses: actions/download-artifact@v3
 #        id: download
 #        with:
