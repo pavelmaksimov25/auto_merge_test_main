@@ -6,20 +6,6 @@ on:
     types: [completed]
 
 jobs:
-  on-success:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Applicable"
-
-  on-failure:
-    if: ${{ github.event.workflow_run.conclusion != 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Not Applicable"
-
   auto-merge:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
