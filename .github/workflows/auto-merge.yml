@@ -16,43 +16,25 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     steps:
+      # https://github.com/marketplace/actions/wait-on-check
+      - name: Wait for CI workflow to succeed
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'validation'
+          repo-token: ${{ secrets.PAT }}
+          wait-interval: 10
+
       # https://github.com/marketplace/actions/list-files-in-pull-request
       - uses: ankitjain28may/list-files-in-pr@v1.0
         id: list-files
         with:
           githubToken: ${{ secrets.PAT }}
           outputFormat: 'space-delimited'
-      - run: |
-          for file in ${{ steps.list-files.outputs.pullRequestFiles }}; do
-            echo "Changed Files - ${file}."
-          done
-      - id: check-files
-        run: |
-          CAN_MERGE=0
-          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
-          if [[ "$FILES" == '' ]]
-          then
-            echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
-            echo "No files. Res: can-merge=$CAN_MERGE"
-            exit 0
-          fi
 
-          LEN=${#FILES[@]}
-          if [[ "$LEN" -ne 1 ]]
-          then
-            echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
-            echo "No files. Res: can-merge=$CAN_MERGE"
-            exit 0
-          fi
-
-          FILE=${#FILES[0]}
-          [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
-          echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
-          echo "file: $FILE"
-          echo "can-merge=$CAN_MERGE"
-
+      # https://github.com/marketplace/actions/merge-pull-requests-automerge-action
       - id: automerge
-        if: ${{ steps.check-files.outputs.can-merge == '1' }}
+        if: ${{  steps.list-files.outputs.pullRequestFiles == 'composer.lock' }}
         name: automerge
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
