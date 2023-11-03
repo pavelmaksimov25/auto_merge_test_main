@@ -34,7 +34,8 @@ jobs:
 
   upload-artifacts:
     name: "upload PR Number"
-    runs-on: ubuntu:latest
+    if: ${{ success() }}
+    runs-on: ubuntu-22.04
     steps:
       - name: "setup artifact file"
         run: |
