@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          echo "repos/$OWNER/$REPO_NAME/pulls/$PULL_REQUEST_NUMBER"
           labels="$(gh api repos/$OWNER/$REPO_NAME/pulls/$PULL_REQUEST_NUMBER --jq '.labels.[].name')"
           echo "$labels"
-          echo "repos/$OWNER/$REPO_NAME/pulls/$PULL_REQUEST_NUMBER"
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.PAT }}
           OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
