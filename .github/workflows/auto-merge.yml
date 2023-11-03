@@ -14,12 +14,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/labeler@v4
-        id: label-the-PR
+        id: pr-labeler
 
       - id: execution-gate
-        if: ${{ !contains(steps.label-the-PR.outputs.all-labels, 'dependencies') }}
+        if: ${{ !contains(steps.pr-labeler.outputs.all-labels, 'dependencies') }}
         run: |
-          exit 78 # neutral exit
+          exit 78
 
       # https://github.com/marketplace/actions/list-files-in-pull-request
       - uses: ankitjain28may/list-files-in-pr@v1.0
