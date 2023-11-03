@@ -19,19 +19,22 @@ jobs:
     steps:
       - run: |
           echo "Not Applicable"
-  show-dependencies:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo ${{ github.event.pull_request.labels }}
 
   auto-merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && contains(github.event.pull_request.labels.*.name, 'dependencies') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      - id: label-the-PR
+        uses: actions/labeler@v4
+      - id: execution-gate
+        if: !contains(steps.label-the-PR.outputs.all-labels, 'dependencies')
+        run: |
+          exit 78 # neutral exit
+
       # https://github.com/marketplace/actions/list-files-in-pull-request
       - uses: ankitjain28may/list-files-in-pr@v1.0
         id: can-auto-merge
+        if: ${{ success() }}
         with:
           githubToken: ${{ secrets.PAT }}
           outputFormat: 'json'
@@ -49,7 +52,7 @@ jobs:
             exit 1
           fi
       - name: automerge
-        if: ${{ steps.can-auto-merge.outputs.can-merge == '1' }}
+        if: ${{ success() }}
         id: automerge
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
