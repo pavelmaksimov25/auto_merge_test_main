@@ -1,11 +1,6 @@
 name: Auto merge dependency PR
 
 on:
-  pull_request:
-    branches:
-      - 'feature/**'
-      - 'bugfix/**'
-      - 'hotfix/**'
   workflow_run:
     workflows: [ Run Tests ]
     types:
