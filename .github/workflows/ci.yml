@@ -37,6 +37,8 @@ jobs:
     if: ${{ success() }}
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v3
+
       - name: "setup artifact file"
         run: |
           echo "$PR_NUMBER" > prnumber.txt

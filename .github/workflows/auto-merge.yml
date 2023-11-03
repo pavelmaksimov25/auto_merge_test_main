@@ -10,10 +10,13 @@ jobs:
   show-pr-number:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - uses: actions/download-artifact@v3
         id: download
         with:
           name: prnumber
+          path: prnumber.txt
       - name: Read PR Number into GitHub environment variables
         run: echo "PR_NUMBER=$(cat prnumber.txt)" >> $GITHUB_ENV
       - name: Confirm the PR Number (Debugging)
