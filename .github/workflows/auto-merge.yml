@@ -6,51 +6,64 @@ on:
     types: [completed]
 
 jobs:
-  auto-merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  show-pr-number:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
-      - uses: actions/labeler@v4
-        id: pr-labeler
-
-      - id: execution-gate
-        if: ${{ !contains(steps.pr-labeler.outputs.all-labels, 'dependencies') }}
-        run: |
-          exit 78
-
-      # https://github.com/marketplace/actions/list-files-in-pull-request
-      - uses: ankitjain28may/list-files-in-pr@v1.0
-        id: can-auto-merge
-        if: ${{ success() }}
-        with:
-          githubToken: ${{ secrets.PAT }}
-          outputFormat: 'json'
       - run: |
-          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
-          LEN=${#FILES[@]}
-          if [[ "$LEN" -eq 1 ]]
-          then
-              FILE=${#FILES[0]}
-              [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
-              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
-              echo "Set up `can-merge` to github output"
-          else
-            echo "No suitable files."
-            exit 1
-          fi
-      - name: automerge
-        if: ${{ success() }}
-        id: automerge
-        uses: "pascalgn/automerge-action@v0.15.6"
+          labels="$(gh api repos/$OWNER/$REPO_NAME/pulls/$PULL_REQUEST_NUMBER --jq '.labels.[].name')"
+          echo "$labels"
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-          MERGE_METHOD: "squash"
-          MERGE_COMMIT_MESSAGE: "pull-request-title"
-          MERGE_FORKS: "false"
-          MERGE_RETRIES: "3"
-          MERGE_RETRY_SLEEP: "10000"
-          MERGE_REQUIRED_APPROVALS: "0"
-          MERGE_LABELS: "dependencies"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+
+#  auto-merge:
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      pull-requests: write
+#    steps:
+#      - uses: actions/labeler@v4
+#        id: pr-labeler
+#
+#      - id: execution-gate
+#        if: ${{ !contains(steps.pr-labeler.outputs.all-labels, 'dependencies') }}
+#        run: |
+#          exit 78
+#
+#      # https://github.com/marketplace/actions/list-files-in-pull-request
+#      - uses: ankitjain28may/list-files-in-pr@v1.0
+#        id: can-auto-merge
+#        if: ${{ success() }}
+#        with:
+#          githubToken: ${{ secrets.PAT }}
+#          outputFormat: 'json'
+#      - run: |
+#          FILES=${{ steps.list-files.outputs.pullRequestFiles }}
+#          LEN=${#FILES[@]}
+#          if [[ "$LEN" -eq 1 ]]
+#          then
+#              FILE=${#FILES[0]}
+#              [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
+#              echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
+#              echo "Set up `can-merge` to github output"
+#          else
+#            echo "No suitable files."
+#            exit 1
+#          fi
+#      - name: automerge
+#        if: ${{ success() }}
+#        id: automerge
+#        uses: "pascalgn/automerge-action@v0.15.6"
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.PAT }}
+#          MERGE_METHOD: "squash"
+#          MERGE_COMMIT_MESSAGE: "pull-request-title"
+#          MERGE_FORKS: "false"
+#          MERGE_RETRIES: "3"
+#          MERGE_RETRY_SLEEP: "10000"
+#          MERGE_REQUIRED_APPROVALS: "0"
+#          MERGE_LABELS: "dependencies"
