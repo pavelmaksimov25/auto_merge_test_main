@@ -9,7 +9,6 @@ on:
             - feature/[a-z]+-[0-9]+/dev-*
     workflow_dispatch:
 
-
 jobs:
   validation:
     name: "composer install and validate"
@@ -31,21 +30,3 @@ jobs:
 
       - name: Composer install
         run: composer install
-
-  upload-artifacts:
-    name: "upload PR Number"
-    if: ${{ success() }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: "setup artifact file"
-        run: |
-          echo "$PR_NUMBER" > prnumber.txt
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-      - name: upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: prnumber
-          path: prnumber.txt
