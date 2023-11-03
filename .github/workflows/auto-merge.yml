@@ -4,9 +4,22 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches-ignore: ['main', 'master', 'rc']
 
 jobs:
+  on-success:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Applicable"
+
+  on-failure:
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Not Applicable"
+
   auto-merge:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.label.name == 'dependencies' }}
     runs-on: ubuntu-latest
@@ -25,7 +38,9 @@ jobs:
               FILE=${#FILES[0]}
               [[ "$FILE" == 'composer.lock' ]] && CAN_MERGE=1 || CAN_MERGE=0
               echo "can-merge=$CAN_MERGE" >> "$GITHUB_OUTPUT"
+              echo "Set up `can-merge` to github output"
           else
+            echo "No suitable files."
             exit 1
           fi
       - name: automerge
