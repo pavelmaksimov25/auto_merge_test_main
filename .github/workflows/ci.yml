@@ -49,7 +49,7 @@ jobs:
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
           GITHUB_TOKEN: "${{ secrets.PAT }}"
-          MERGE_LABELS: "dependencies"
+          MERGE_LABELS: "composer dependencies"
           MERGE_REMOVE_LABELS: "automerge"
           MERGE_METHOD: "squash"
           MERGE_COMMIT_MESSAGE: "pull-request-title"
