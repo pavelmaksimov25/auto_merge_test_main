@@ -2,7 +2,7 @@ name: PR Slack Notification
 
 on:
   pull_request:
-    types: [opened]
+  push:
 
 jobs:
   wait_for_ci:
