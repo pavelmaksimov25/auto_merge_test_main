@@ -2,7 +2,7 @@ name: PR Slack Notification
 
 on:
   pull_request:
-  push:
+    types: [opened]
 
 jobs:
   wait_for_ci:
@@ -15,37 +15,41 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           CI_WORKFLOW_NAME="CI"
           REPO=${{ github.repository }}
-
-          echo "Waiting for CI workflow to complete for PR #$PR_NUMBER..."
+          MAX_WAIT_TIME=600  # 10 minutes in seconds
+          SLEEP_TIME=15       # Retry interval in seconds
+          TIME_WAITED=0
           
-          while true; do
+          echo "Waiting for CI workflow to complete for PR #$PR_NUMBER (Max: 10 min)..."
+          
+          while [[ $TIME_WAITED -lt $MAX_WAIT_TIME ]]; do
             CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha -q \
               ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head.sha }}\") | .conclusion")
-
-            echo "CI status: $CI_STATUS"
-
+          
             if [[ "$CI_STATUS" == "success" ]]; then
-              echo "CI passed! Sending Slack notification..."
+              echo "✅ CI passed! Sending Slack notification..."
               break
             elif [[ "$CI_STATUS" == "failure" ]]; then
-              echo "CI failed. Exiting..."
+              echo "❌ CI failed. No notification will be sent."
               exit 1
             elif [[ -z "$CI_STATUS" ]]; then
-              echo "CI is still running..."
+              echo "⏳ CI is still running... Retrying in $SLEEP_TIME seconds."
             else
-              echo "Unknown status: $CI_STATUS"
+              echo "⚠️ Unknown status: $CI_STATUS"
             fi
-
-            sleep 10  # Check every 10 seconds
+          
+            sleep $SLEEP_TIME
+            TIME_WAITED=$((TIME_WAITED + SLEEP_TIME))
           done
+          
+          if [[ $TIME_WAITED -ge $MAX_WAIT_TIME ]]; then
+            echo "⚠️ CI did not finish within 10 minutes. Exiting..."
+            exit 1
+          fi
 
       - name: Send Slack Notification
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": "🚀 PR #${{ github.event.pull_request.number }} is created and CI has finished successfully! 🎉\n
-            *Title:* ${{ github.event.pull_request.title }}\n
-            *Author:* ${{ github.event.pull_request.user.login }}\n
-            *PR Link:* ${{ github.event.pull_request.html_url }}"
+            "text": ":git: @backend Please review [PR #${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}) by ${{ github.event.pull_request.user.login }}."
           }' $SLACK_WEBHOOK_URL
