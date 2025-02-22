@@ -42,5 +42,5 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":git: @backend please review [this PR](${{ github.event.pull_request.html_url }}). by ${{ github.event.pull_request.user.login}}. \n
+            "text": ":git: @backend please review [this PR](${{ github.event.pull_request.html_url }}). by ${{ github.event.pull_request.user.login}}. \n"
           }' $SLACK_WEBHOOK_URL
