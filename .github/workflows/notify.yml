@@ -2,13 +2,13 @@ name: PR Slack Notification
 
 on:
   pull_request:
-    types: [opened]
+  push:
 
 jobs:
   wait_for_ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for CI to Complete
+      - name: Wait for CI to Complete (Max 10 min)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -18,29 +18,29 @@ jobs:
           MAX_WAIT_TIME=600  # 10 minutes in seconds
           SLEEP_TIME=15       # Retry interval in seconds
           TIME_WAITED=0
-          
-          echo "Waiting for CI workflow to complete for PR #$PR_NUMBER (Max: 10 min)..."
-          
+
+          echo "🔄 Waiting for CI workflow to complete for PR #$PR_NUMBER (Max: 10 min)..."
+
           while [[ $TIME_WAITED -lt $MAX_WAIT_TIME ]]; do
-            CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha -q \
-              ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head.sha }}\") | .conclusion")
-          
+            CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha | jq -r \
+              ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head_sha }}\") | .conclusion")
+
             if [[ "$CI_STATUS" == "success" ]]; then
               echo "✅ CI passed! Sending Slack notification..."
               break
             elif [[ "$CI_STATUS" == "failure" ]]; then
               echo "❌ CI failed. No notification will be sent."
               exit 1
-            elif [[ -z "$CI_STATUS" ]]; then
+            elif [[ -z "$CI_STATUS" || "$CI_STATUS" == "null" ]]; then
               echo "⏳ CI is still running... Retrying in $SLEEP_TIME seconds."
             else
-              echo "⚠️ Unknown status: $CI_STATUS"
+              echo "⚠️ Unexpected CI status: $CI_STATUS"
             fi
-          
+
             sleep $SLEEP_TIME
             TIME_WAITED=$((TIME_WAITED + SLEEP_TIME))
           done
-          
+
           if [[ $TIME_WAITED -ge $MAX_WAIT_TIME ]]; then
             echo "⚠️ CI did not finish within 10 minutes. Exiting..."
             exit 1
