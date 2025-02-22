@@ -1,15 +1,42 @@
 name: PR Slack Notification
 
 on:
-  workflow_run:
-    workflows: ["CI"]  # Replace with your CI workflow name
-    types:
-      - completed
+  pull_request:
+    types: [opened]
 
 jobs:
-  notify_slack:
+  wait_for_ci:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for CI to Complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CI_WORKFLOW_NAME="CI"
+          REPO=${{ github.repository }}
+
+          echo "Waiting for CI workflow to complete for PR #$PR_NUMBER..."
+          
+          while true; do
+            CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha -q \
+              ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head.sha }}\") | .conclusion")
+
+            if [[ "$CI_STATUS" == "success" ]]; then
+              echo "CI passed! Sending Slack notification..."
+              break
+            elif [[ "$CI_STATUS" == "failure" ]]; then
+              echo "CI failed. Exiting..."
+              exit 1
+            elif [[ -z "$CI_STATUS" ]]; then
+              echo "CI is still running..."
+            else
+              echo "Unknown status: $CI_STATUS"
+            fi
+
+            sleep 10  # Check every 10 seconds
+          done
+
       - name: Send Slack Notification
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
