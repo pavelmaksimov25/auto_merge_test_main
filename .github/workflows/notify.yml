@@ -8,7 +8,7 @@ jobs:
   wait_for_ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for CI to Complete (Max 10 min)
+      - name: Wait for the Latest Successful CI Run (Max 10 min)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -19,22 +19,22 @@ jobs:
           SLEEP_TIME=15       # Retry interval in seconds
           TIME_WAITED=0
 
-          echo "🔄 Waiting for CI workflow to complete for PR #$PR_NUMBER (Max: 10 min)..."
+          echo "🔄 Waiting for the most recent successful CI run for PR #$PR_NUMBER (Max: 10 min)..."
 
           while [[ $TIME_WAITED -lt $MAX_WAIT_TIME ]]; do
-            CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha | jq -r \
-              ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head_sha }}\") | .conclusion")
+            LATEST_CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha,updatedAt | jq -r '
+              map(select(.name == "CI" and .event == "pull_request" and .conclusion == "success")) 
+              | sort_by(.updatedAt) 
+              | reverse 
+              | .[0].conclusion')
 
-            if [[ "$CI_STATUS" == "success" ]]; then
-              echo "✅ CI passed! Sending Slack notification..."
+            if [[ "$LATEST_CI_STATUS" == "success" ]]; then
+              echo "✅ Most recent successful CI run found! Sending Slack notification..."
               break
-            elif [[ "$CI_STATUS" == "failure" ]]; then
-              echo "❌ CI failed. No notification will be sent."
-              exit 1
-            elif [[ -z "$CI_STATUS" || "$CI_STATUS" == "null" ]]; then
-              echo "⏳ CI is still running... Retrying in $SLEEP_TIME seconds."
+            elif [[ -z "$LATEST_CI_STATUS" || "$LATEST_CI_STATUS" == "null" ]]; then
+              echo "⏳ No successful CI run yet... Retrying in $SLEEP_TIME seconds."
             else
-              echo "⚠️ Unexpected CI status: $CI_STATUS"
+              echo "⚠️ Unexpected CI status: $LATEST_CI_STATUS"
             fi
 
             sleep $SLEEP_TIME
@@ -42,7 +42,7 @@ jobs:
           done
 
           if [[ $TIME_WAITED -ge $MAX_WAIT_TIME ]]; then
-            echo "⚠️ CI did not finish within 10 minutes. Exiting..."
+            echo "⚠️ No successful CI run found within 10 minutes. Exiting..."
             exit 1
           fi
 
