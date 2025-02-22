@@ -40,6 +40,10 @@ jobs:
             CI_RUNNING=$(echo "$LATEST_CI_RUN" | jq -r '.status')
             RUN_NUMBER=$(echo "$LATEST_CI_RUN" | jq -r '.number')
 
+            echo "CI_STATUS: $CI_STATUS"
+            echo "CI_RUNNING: $CI_RUNNING"
+            echo "RUN_NUMBER: $RUN_NUMBER"
+
             if [[ "$RUN_NUMBER" == "null" ]]; then
               echo "⚠️ No active CI run found for this PR. Retrying in $SLEEP_TIME seconds..."
             elif [[ "$CI_RUNNING" == "completed" ]]; then
