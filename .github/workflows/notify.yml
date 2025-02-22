@@ -6,6 +6,7 @@ on:
 
 jobs:
   wait_for_ci:
+    if: ${{ github.event.pull_request.draft == false }} # Skip draft PRs
     runs-on: ubuntu-latest
     steps:
       - name: Wait for the Latest CI Run of Current PR (Max 10 min)
