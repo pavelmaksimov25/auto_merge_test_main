@@ -8,33 +8,43 @@ jobs:
   wait_for_ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for the Latest Successful CI Run (Max 10 min)
+      - name: Wait for the Latest CI Run of Current PR (Max 10 min)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
           CI_WORKFLOW_NAME="CI"
           REPO=${{ github.repository }}
-          MAX_WAIT_TIME=600  # 10 minutes in seconds
-          SLEEP_TIME=15       # Retry interval in seconds
+          MAX_WAIT_TIME=600  # 10 minutes
+          SLEEP_TIME=15       # Retry interval
           TIME_WAITED=0
 
-          echo "🔄 Waiting for the most recent successful CI run for PR #$PR_NUMBER (Max: 10 min)..."
+          echo "🔄 Waiting for the latest CI workflow of PR #$PR_NUMBER (SHA: $HEAD_SHA) to complete (Max: 10 min)..."
 
           while [[ $TIME_WAITED -lt $MAX_WAIT_TIME ]]; do
-            LATEST_CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha,updatedAt | jq -r '
-              map(select(.name == "CI" and .event == "pull_request" and .conclusion == "success")) 
+            LATEST_CI_RUN=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha,updatedAt,status,run_number | jq -r '
+              map(select(.name == "'"$CI_WORKFLOW_NAME"'" and .event == "pull_request" and .headSha == "'"$HEAD_SHA"'")) 
               | sort_by(.updatedAt) 
               | reverse 
-              | .[0].conclusion')
+              | .[0]')
 
-            if [[ "$LATEST_CI_STATUS" == "success" ]]; then
-              echo "✅ Most recent successful CI run found! Sending Slack notification..."
-              break
-            elif [[ -z "$LATEST_CI_STATUS" || "$LATEST_CI_STATUS" == "null" ]]; then
-              echo "⏳ No successful CI run yet... Retrying in $SLEEP_TIME seconds."
+            CI_STATUS=$(echo "$LATEST_CI_RUN" | jq -r '.conclusion')
+            CI_RUNNING=$(echo "$LATEST_CI_RUN" | jq -r '.status')
+            RUN_NUMBER=$(echo "$LATEST_CI_RUN" | jq -r '.run_number')
+
+            if [[ "$RUN_NUMBER" == "null" ]]; then
+              echo "⚠️ No active CI run found for this PR. Retrying in $SLEEP_TIME seconds..."
+            elif [[ "$CI_RUNNING" == "completed" ]]; then
+              if [[ "$CI_STATUS" == "success" ]]; then
+                echo "✅ Most recent CI run #$RUN_NUMBER for PR #$PR_NUMBER is successful! Sending Slack notification..."
+                break
+              else
+                echo "❌ Most recent CI run #$RUN_NUMBER for PR #$PR_NUMBER failed. No notification will be sent."
+                exit 1
+              fi
             else
-              echo "⚠️ Unexpected CI status: $LATEST_CI_STATUS"
+              echo "⏳ CI run #$RUN_NUMBER is still in progress... Retrying in $SLEEP_TIME seconds."
             fi
 
             sleep $SLEEP_TIME
@@ -42,7 +52,7 @@ jobs:
           done
 
           if [[ $TIME_WAITED -ge $MAX_WAIT_TIME ]]; then
-            echo "⚠️ No successful CI run found within 10 minutes. Exiting..."
+            echo "⚠️ CI did not finish within 10 minutes. Exiting..."
             exit 1
           fi
 
