@@ -22,6 +22,8 @@ jobs:
             CI_STATUS=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha -q \
               ".[] | select(.name == \"$CI_WORKFLOW_NAME\" and .event == \"pull_request\" and .headSha == \"${{ github.event.pull_request.head.sha }}\") | .conclusion")
 
+            echo "CI status: $CI_STATUS"
+
             if [[ "$CI_STATUS" == "success" ]]; then
               echo "CI passed! Sending Slack notification..."
               break
