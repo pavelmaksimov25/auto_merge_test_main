@@ -5,6 +5,12 @@ on:
     types: [opened]
 
 jobs:
+  taktical_wait:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for 15 seconds. In case developer wants to make it draft
+        run: sleep 15
+
   wait_for_ci:
     if: ${{ github.event.pull_request.draft == false }} # Skip draft PRs
     runs-on: ubuntu-latest
