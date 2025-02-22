@@ -23,7 +23,7 @@ jobs:
           echo "🔄 Waiting for the latest CI workflow of PR #$PR_NUMBER (SHA: $HEAD_SHA) to complete (Max: 10 min)..."
 
           while [[ $TIME_WAITED -lt $MAX_WAIT_TIME ]]; do
-            LATEST_CI_RUN=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha,updatedAt,status,run_number | jq -r '
+            LATEST_CI_RUN=$(gh run list --repo "$REPO" --json name,conclusion,event,headSha,updatedAt,status,number | jq -r '
               map(select(.name == "'"$CI_WORKFLOW_NAME"'" and .event == "pull_request" and .headSha == "'"$HEAD_SHA"'")) 
               | sort_by(.updatedAt) 
               | reverse 
