@@ -3,18 +3,16 @@ name: PR Slack Notification
 on:
   pull_request:
     types: [opened]
+  workflow_dispatch:
 
 jobs:
-  taktical_wait:
+  wait_for_ci:
+    if: ${{ github.event.pull_request.draft == false }} # Skip draft PRs
     runs-on: ubuntu-latest
     steps:
       - name: Wait for 15 seconds. In case developer wants to make it draft
         run: sleep 15
 
-  wait_for_ci:
-    if: ${{ github.event.pull_request.draft == false }} # Skip draft PRs
-    runs-on: ubuntu-latest
-    steps:
       - name: Wait for the Latest CI Run of Current PR (Max 10 min)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,6 +33,8 @@ jobs:
               | sort_by(.updatedAt) 
               | reverse 
               | .[0]')
+
+            echo "LATEST_CI_RUN: $LATEST_CI_RUN"
 
             CI_STATUS=$(echo "$LATEST_CI_RUN" | jq -r '.conclusion')
             CI_RUNNING=$(echo "$LATEST_CI_RUN" | jq -r '.status')
