@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pavelmaksimov25/automerge_dep.git",
-                "reference": "fa2e7011712efb6c397a2a3e56da27387358203b"
+                "reference": "6b003c8ca3c8f6092ed0f2d3b10ad5a2661151b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pavelmaksimov25/automerge_dep/zipball/fa2e7011712efb6c397a2a3e56da27387358203b",
-                "reference": "fa2e7011712efb6c397a2a3e56da27387358203b",
+                "url": "https://api.github.com/repos/pavelmaksimov25/automerge_dep/zipball/6b003c8ca3c8f6092ed0f2d3b10ad5a2661151b5",
+                "reference": "6b003c8ca3c8f6092ed0f2d3b10ad5a2661151b5",
                 "shasum": ""
             },
             "require": {
@@ -39,7 +39,7 @@
                 "issues": "https://github.com/pavelmaksimov25/automerge_dep/issues",
                 "source": "https://github.com/pavelmaksimov25/automerge_dep/tree/main"
             },
-            "time": "2023-11-04T10:56:29+00:00"
+            "time": "2025-02-23T15:16:11+00:00"
         }
     ],
     "packages-dev": [],
@@ -53,6 +53,6 @@
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }
